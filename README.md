@@ -1,5 +1,4 @@
 # PySpaceBattle
-<<<<<<< HEAD
 It is 2D space - shooter on pygame.
 # Description
 You should shooting and dodge with meteorites, enemys flying and bullets.

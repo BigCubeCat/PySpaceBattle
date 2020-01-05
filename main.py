@@ -124,6 +124,7 @@ def start_screen():
                         return i + 1
                 if clicked(shop_button, pos):
                     shop()
+                    print(data)
                     draw_start_screen()
         pygame.display.flip()
         clock.tick(10)
@@ -169,7 +170,7 @@ def shop():
                 for i in range(len(rects)):
                     if clicked(rects[i], pos):
                         if data[i] == 1:
-                            for j in data:
+                            for j in range(5):
                                 if data[j] == 2:
                                     data[j] = 1
                             data[i] = 2
@@ -177,6 +178,9 @@ def shop():
                             if data['coins'] >= sales[i]:
                                 data['coins'] -= sales[i]
                                 data[i] = 2
+                                for j in range(5):
+                                    if data[j] == 2:
+                                        data[j] = 1
                                 return
                         else:
                             return
@@ -733,7 +737,6 @@ while True:
                 player.hit()
         drawing_and_update()
         drawing()
-
         clock.tick(game_controller.FPS)
         pygame.display.flip()
         player.plus_score(1)

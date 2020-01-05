@@ -132,7 +132,7 @@ def start_screen():
 def shop():
     screen.fill((0, 0, 30))
     rects = [(0, i * 120, width, 120) for i in range(5)]
-    sales = [0, 10, 50, 100, 150]
+    sales = [0, 5, 10, 50, 70]
     skins = ['player.png', 'player.png', 'player2.png', 'player1.png', 'player3.png']
     count_shell = [1, 2, 2, 2, 2]
     group = pygame.sprite.Group()
@@ -146,7 +146,7 @@ def shop():
             btn_im = pygame.transform.scale(load_image('red_btn.png', -1), (64, 64))
             screen.blit(btn_im, (300, i * 120 + 30))
             string = font.render(str(sales[i]), 1, pygame.Color(0, 0, 0))
-            screen.blit(string, (320, i * 120 + 55))
+            screen.blit(string, (325, i * 120 + 55))
         elif data[i] == 2:
             im = pygame.transform.scale(load_image('green_btn.png', -1), (64, 64))
             screen.blit(im, (300, i * 120 + 30))

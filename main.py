@@ -177,10 +177,10 @@ def shop():
                         elif data[i] == 0:
                             if data['coins'] >= sales[i]:
                                 data['coins'] -= sales[i]
-                                data[i] = 2
                                 for j in range(5):
                                     if data[j] == 2:
                                         data[j] = 1
+                                data[i] = 2
                                 return
                         else:
                             return

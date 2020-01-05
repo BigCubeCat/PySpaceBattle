@@ -29,7 +29,7 @@ def clicked(rect, pos):
 
 def draw_start_screen():
     intro_text = ["PySpaceBattle", "",
-                  "Стреляй что бы выжить!"]
+                  "Shoot to survive!"]
 
     fon = pygame.transform.scale(load_image('bg.jpg'), (width, height))
     screen.blit(fon, (0, 0))
@@ -45,25 +45,35 @@ def draw_start_screen():
         screen.blit(string_rendered, intro_rect)
     rects = [(50, 150, 200, 50), (50, 220, 200, 50), (50, 290, 200, 50),
              (50, 360, 200, 50), (50, 430, 200, 50)]
+    pygame.draw.rect(screen, pygame.Color(75, 75, 75), (60, 150 + 10, 200, 50))
     pygame.draw.rect(screen, pygame.Color(200, 200, 200), (50, 150, 200, 50))
-    string_rendered = font.render('Легко', 1, pygame.Color(55, 55, 55))
+    pygame.draw.rect(screen, pygame.Color('black'), (50, 150, 200, 50), 5)
+    string_rendered = font.render('easy', 1, pygame.Color(55, 55, 55))
     screen.blit(string_rendered, (70, 160, 200, 50))
 
+    pygame.draw.rect(screen, pygame.Color(75, 75, 75), (60, 220 + 10, 200, 50))
     pygame.draw.rect(screen, pygame.Color(200, 200, 255), (50, 220, 200, 50))
-    string_rendered = font.render('Нормально', 1, pygame.Color(55, 55, 0))
+    pygame.draw.rect(screen, pygame.Color('black'), (50, 220, 200, 50), 5)
+    string_rendered = font.render('normal', 1, pygame.Color(55, 55, 0))
     screen.blit(string_rendered, (70, 230, 200, 50))
 
-    pygame.draw.rect(screen, pygame.Color(200, 200, 100), (50, 290, 200, 50))
-    string_rendered = font.render('Сложно', 1, pygame.Color(55, 55, 155))
+    pygame.draw.rect(screen, pygame.Color(75, 75, 75), (60, 290 + 10, 200, 50))
+    pygame.draw.rect(screen, pygame.Color(145, 200, 145), (50, 290, 200, 50))
+    pygame.draw.rect(screen, pygame.Color('black'), (50, 290, 200, 50), 5)
+    string_rendered = font.render('hard', 1, pygame.Color(0, 55, 0))
     screen.blit(string_rendered, (70, 300, 200, 50))
+    pygame.draw.rect(screen, pygame.Color(75, 75, 75), (60, 360 + 10, 200, 50))
 
-    pygame.draw.rect(screen, pygame.Color(253, 106, 2), (50, 360, 200, 50))
-    string_rendered = font.render('Адское месиво', 1, pygame.Color(2, 2, 150))
+    pygame.draw.rect(screen, pygame.Color(200, 145, 145), (50, 360, 200, 50))
+    pygame.draw.rect(screen, pygame.Color('black'), (50, 360, 200, 50), 5)
+    string_rendered = font.render('ultra hard', 1, pygame.Color(55, 0, 0))
     screen.blit(string_rendered, (70, 370, 200, 50))
 
-    pygame.draw.rect(screen, pygame.Color('red'), (50, 430, 200, 50))
-    string_rendered = font.render('ТЕБЕ НЕ ВЫЖИТЬ!', 1, pygame.Color('black'))
-    screen.blit(string_rendered, (50, 440, 200, 50))
+    pygame.draw.rect(screen, pygame.Color(75, 75, 75), (60, 430 + 10, 200, 50))
+    pygame.draw.rect(screen, pygame.Color(145, 0, 0), (50, 430, 200, 50))
+    pygame.draw.rect(screen, pygame.Color('black'), (50, 430, 200, 50), 5)
+    string_rendered = font.render('hell', 1, pygame.Color('black'))
+    screen.blit(string_rendered, (70, 440, 200, 50))
 
     pygame.draw.rect(screen, pygame.Color('yellow'), (width - 64, 0, 64, 64))
     string_rendered = font.render('sound:', 1, pygame.Color('black'))

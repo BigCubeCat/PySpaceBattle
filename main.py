@@ -14,7 +14,7 @@ CHANNELS = [pygame.mixer.Channel(i) for i in range(6)]
 SOUND = True
 size = width, height = 600, 600
 screen_rect = (0, 0, width, height)
-pygame.display.set_caption('PySpace Battle', 'icon.png')
+pygame.display.set_caption('PySpaceBattle', 'icon.png')
 screen = pygame.display.set_mode(size)
 
 
@@ -31,7 +31,7 @@ def draw_start_screen():
     intro_text = ["PySpaceBattle", "",
                   "Shoot to survive!"]
 
-    fon = pygame.transform.scale(load_image('bg.jpg'), (width, height))
+    fon = pygame.transform.scale(load_image('bg1.png'), (1024, 4096))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
     text_coord = 50
@@ -45,6 +45,7 @@ def draw_start_screen():
         screen.blit(string_rendered, intro_rect)
     rects = [(50, 150, 200, 50), (50, 220, 200, 50), (50, 290, 200, 50),
              (50, 360, 200, 50), (50, 430, 200, 50)]
+
     pygame.draw.rect(screen, pygame.Color(75, 75, 75), (60, 150 + 10, 200, 50))
     pygame.draw.rect(screen, pygame.Color(200, 200, 200), (50, 150, 200, 50))
     pygame.draw.rect(screen, pygame.Color('black'), (50, 150, 200, 50), 5)
@@ -58,29 +59,34 @@ def draw_start_screen():
     screen.blit(string_rendered, (70, 230, 200, 50))
 
     pygame.draw.rect(screen, pygame.Color(75, 75, 75), (60, 290 + 10, 200, 50))
-    pygame.draw.rect(screen, pygame.Color(145, 200, 145), (50, 290, 200, 50))
+    pygame.draw.rect(screen, pygame.Color(200, 200, 145), (50, 290, 200, 50))
     pygame.draw.rect(screen, pygame.Color('black'), (50, 290, 200, 50), 5)
-    string_rendered = font.render('hard', 1, pygame.Color(0, 55, 0))
+    string_rendered = font.render('hard', 1, pygame.Color(55, 55, 0))
     screen.blit(string_rendered, (70, 300, 200, 50))
-    pygame.draw.rect(screen, pygame.Color(75, 75, 75), (60, 360 + 10, 200, 50))
 
-    pygame.draw.rect(screen, pygame.Color(200, 145, 145), (50, 360, 200, 50))
+    pygame.draw.rect(screen, pygame.Color(75, 75, 75), (60, 360 + 10, 200, 50))
+    pygame.draw.rect(screen, pygame.Color(145, 200, 145), (50, 360, 200, 50))
     pygame.draw.rect(screen, pygame.Color('black'), (50, 360, 200, 50), 5)
-    string_rendered = font.render('ultra hard', 1, pygame.Color(55, 0, 0))
+    string_rendered = font.render('ultra hard', 1, pygame.Color(0, 55, 0))
     screen.blit(string_rendered, (70, 370, 200, 50))
 
     pygame.draw.rect(screen, pygame.Color(75, 75, 75), (60, 430 + 10, 200, 50))
-    pygame.draw.rect(screen, pygame.Color(145, 0, 0), (50, 430, 200, 50))
+    pygame.draw.rect(screen, pygame.Color(200, 145, 145), (50, 430, 200, 50))
     pygame.draw.rect(screen, pygame.Color('black'), (50, 430, 200, 50), 5)
-    string_rendered = font.render('hell', 1, pygame.Color('black'))
+    string_rendered = font.render('hell', 1, pygame.Color(55, 0, 0))
     screen.blit(string_rendered, (70, 440, 200, 50))
-
-    pygame.draw.rect(screen, pygame.Color('yellow'), (width - 64, 0, 64, 64))
+    font = pygame.font.Font(None, 25)
+    pygame.draw.rect(screen, pygame.Color(200, 200, 200), (width - 64, 0, 64, 40))
+    pygame.draw.rect(screen, pygame.Color('black'), (width - 64, 0, 64, 40), 5)
     string_rendered = font.render('sound:', 1, pygame.Color('black'))
-    screen.blit(string_rendered, (width - 64, 0, 64, 10))
+    screen.blit(string_rendered, (width - 60, 0, 64, 11))
 
-    image = pygame.transform.scale(load_image('shop.png'), (200, 200))
+    image = pygame.transform.scale(load_image('green_btn.png', -1), (200, 200))
     screen.blit(image, (350, 350))
+
+    font = pygame.font.Font(None, 50)
+    string_rendered = font.render('Shop', 1, pygame.Color(0, 55, 0))
+    screen.blit(string_rendered, (410, 430, 150, 150))
     shop_button = (350, 400, 200, 200)
 
     return rects, shop_button
@@ -94,8 +100,9 @@ def start_screen():
         rects, shop_button = draw_start_screen()
         sound_button = (width - 64, 0, 64, 64)
         dic_sound_instance = {True: 'ON', False: "OFF"}
-        string_rendered = font.render(f'{dic_sound_instance[SOUND]}', 1, pygame.Color('red'))
-        screen.blit(string_rendered, (width - 64, 20, 64, 10))
+        string_rendered = font.render(f'{dic_sound_instance[SOUND]}', 1,
+                                      pygame.Color(255, 100, 100))
+        screen.blit(string_rendered, (width - 60, 20, 64, 10))
         group.draw(screen)
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
@@ -135,19 +142,20 @@ def shop():
         im.rect = im.image.get_rect()
         im.rect.center = 120, i * 120 + 60
         if data[i] == 0:
-            font = pygame.font.Font(None, 60)
-            string = font.render(str(sales[i]), 1, pygame.Color(255, 50, 50))
-            screen.blit(string, (350, i * 120 + 60))
+            font = pygame.font.Font(None, 25)
+            btn_im = pygame.transform.scale(load_image('red_btn.png', -1), (64, 64))
+            screen.blit(btn_im, (300, i * 120 + 30))
+            string = font.render(str(sales[i]), 1, pygame.Color(0, 0, 0))
+            screen.blit(string, (320, i * 120 + 55))
         elif data[i] == 2:
-            im = pygame.sprite.Sprite(group)
-            im.image = load_image('checked.png', -1)
-            im.rect = im.image.get_rect()
-            im.rect.center = 450, i * 120 + 60
+            im = pygame.transform.scale(load_image('green_btn.png', -1), (64, 64))
+            screen.blit(im, (300, i * 120 + 30))
+        elif data[i] == 1:
+            im = pygame.transform.scale(load_image('blue_btn.png', -1), (64, 64))
+            screen.blit(im, (300, i * 120 + 30))
         for k in range(count_shell[i]):
-            im = pygame.sprite.Sprite(group)
-            im.image = load_image('shell3.png')
-            im.rect = im.image.get_rect()
-            im.rect.center = 200 + 30 * k, i * 120 + 60
+            im = pygame.transform.scale(load_image(f'shell{i + 1}.png', -1), (22, 32))
+            screen.blit(im, (200 + 30 * k, i * 120 + 30))
     while True:
         group.draw(screen)
         keys = pygame.key.get_pressed()
@@ -639,24 +647,29 @@ def save_data(score):
 
 def drawing():
     font = pygame.font.Font(None, 20)
-    screen.fill(pygame.Color(200, 20, 20), (10, 110 - player.HP, 10, player.HP))
-    screen.fill(pygame.Color(200, 200, 20), (0, 120, 100, 90))
-    string_rendered = font.render('score:', 1, pygame.Color(0, 0, 0))
-    screen.blit(string_rendered, (0, 120, 50, 30))
-    string_rendered = font.render(str(player.score), 1, pygame.Color(0, 0, 0))
-    screen.blit(string_rendered, (0, 135, 50, 30))
+    screen.fill(pygame.Color(200, 45, 45), (10, 110 - player.HP, 10, player.HP))
+    screen.fill(pygame.Color(200, 200, 200), (0, 120, 100, 90))
+    string_rendered = font.render('score:', 1, pygame.Color(75, 75, 75))
+    screen.blit(string_rendered, (20, 120, 50, 30))
+    string_rendered = font.render(str(player.score), 1, pygame.Color(75, 75, 75))
+    screen.blit(string_rendered, (20, 135, 50, 30))
     string_rendered = font.render('best score:', 1,
-                                  pygame.Color(0, 0, 0))
-    screen.blit(string_rendered, (0, 150, 50, 30))
+                                  pygame.Color(75, 75, 75))
+    screen.blit(string_rendered, (20, 150, 50, 30))
     string_rendered = font.render(str(best_score[hard_level]), 1,
-                                  pygame.Color(0, 0, 0))
-    screen.blit(string_rendered, (0, 165, 50, 30))
+                                  pygame.Color(75, 75, 75))
+    screen.blit(string_rendered, (20, 165, 50, 30))
     string_rendered = font.render('count money:', 1,
-                                  pygame.Color(0, 0, 0))
-    screen.blit(string_rendered, (0, 180, 50, 30))
+                                  pygame.Color(75, 75, 75))
+    screen.blit(string_rendered, (20, 180, 50, 30))
     string_rendered = font.render(str(player.count_coins), 1,
-                                  pygame.Color(0, 0, 0))
-    screen.blit(string_rendered, (0, 195, 50, 30))
+                                  pygame.Color(75, 75, 75))
+    screen.blit(string_rendered, (20, 195, 50, 30))
+
+    screen.blit(pygame.transform.scale(load_image("star1.png"), (16, 16)), (0, 120, 16, 16))
+    screen.blit(pygame.transform.scale(load_image("star.png"), (16, 16)), (0, 150, 16, 16))
+    screen.blit(pygame.transform.scale(load_image("coin.png"), (16, 16)), (0, 180, 16, 16))
+    screen.blit(pygame.transform.scale(load_image("diamond.png"), (16, 16)), (6, 100, 20, 20))
 
 
 def drawing_and_update():
@@ -673,7 +686,6 @@ def drawing_and_update():
     shells.draw(screen)
     enemy_group.update()
     enemy_group.draw(screen)
-
     shells.update()
 
 

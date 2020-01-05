@@ -1,8 +1,14 @@
 import pygame
 import os
+from random import choice
 
 
 def load_image(name, color_key=(0, 255, 0, 255)):
+    """
+    :param name: image name if "data" directory
+    :param color_key: clear color in image
+    :return: image
+    """
     fullname = os.path.join('data', name)
     image = pygame.image.load(fullname).convert()
     if not color_key is None:
@@ -34,17 +40,13 @@ class GameObject(pygame.sprite.Sprite):
         self.move_on_vector()
 
     def move_on_vector(self):
+        """Move object on vector"""
         self.rect.x += self.velocity[0]
         self.rect.y += self.velocity[1]
 
-    def set_move(self, axis, way):
-        if axis == 'v':
-            self.velocity[1] = way * self.speed
-        elif axis == 'h':
-            self.velocity[0] = way * self.speed
-
 
 class BG(pygame.sprite.Sprite):
+    """Moving Background"""
     def __init__(self, g, image_name='bg1', top=True, screen_size=(600, 600)):
         super().__init__(g)
         self.image = load_image(f'{image_name}.png')
@@ -61,3 +63,24 @@ class BG(pygame.sprite.Sprite):
         self.rect.y += 1
         if self.rect.y > self.screen_size[1]:
             self.rect.y = -self.rect.height
+
+
+class Particle(pygame.sprite.Sprite):
+    """Fulling Particles effect"""
+    def __init__(self, group, pos, dx, dy, grav, screen_rect, image_name='star1.png'):
+        self.fire = [load_image(image_name, -1)]
+        for scale in (5, 10, 20):
+            self.fire.append(pygame.transform.scale(self.fire[0], (scale, scale)))
+        super().__init__(group)
+        self.image = choice(self.fire)
+        self.rect = self.image.get_rect()
+        self.velocity = [dx, dy]
+        self.rect.x, self.rect.y = pos
+        self.gravity, self.screen_rect = grav, screen_rect
+
+    def update(self):
+        self.velocity[1] += self.gravity
+        self.rect.x += self.velocity[0]
+        self.rect.y += self.velocity[1]
+        if not self.rect.colliderect(self.screen_rect):
+            self.kill()

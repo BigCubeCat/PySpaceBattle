@@ -19,15 +19,27 @@ screen = pygame.display.set_mode(size)
 
 
 def terminate():
+    """
+    exit from game
+    """
     pygame.quit()
     sys.exit()
 
 
 def clicked(rect, pos):
+    """
+    Check what position in rectangle
+    :param rect: Rectangle (left, top, width, height)
+    :param pos: position (x, y)
+    :return: True if position in rectangle and False if position not in rectangle
+    """
     return rect[0] <= pos[0] <= rect[0] + rect[2] and rect[1] <= pos[1] <= rect[1] + rect[3]
 
 
 def draw_start_screen():
+    """
+     drawing main game screen
+    """
     intro_text = ["PySpaceBattle", "",
                   "Shoot to survive!"]
 
@@ -93,6 +105,9 @@ def draw_start_screen():
 
 
 def start_screen():
+    """
+    Main screen of game
+    """
     global SOUND
     font = pygame.font.Font(None, 30)
     group = pygame.sprite.Group()
@@ -131,6 +146,7 @@ def start_screen():
 
 
 def shop():
+    """Scene shop with player skins"""
     screen.fill((0, 0, 30))
     rects = [(0, i * 120, width, 120) for i in range(5)]
     sales = [0, 5, 10, 50, 70]
@@ -189,13 +205,23 @@ def shop():
 
 
 def create_particles(position, image_name='star1.png'):
+    """
+    :param position: position particles
+    :param image_name: particles image
+    """
     particle_count = randint(4, 7)
     numbers = range(-5, 6)
     for _ in range(particle_count):
-        Particle(position, choice(numbers), choice(numbers), image_name=image_name)
+        Particle(particles, position, choice(numbers), choice(numbers), GRAVITY, screen_rect,
+                 image_name=image_name)
 
 
 def check_keys(player, keys):
+    """
+    check keys and set movement vector for player
+    :param player: player
+    :param keys: list keyboard keys
+    """
     if keys[pygame.K_UP] or keys[pygame.K_w]:
         player.set_move('v', -1)
     if keys[pygame.K_DOWN] or keys[pygame.K_s]:
@@ -208,12 +234,8 @@ def check_keys(player, keys):
 
 class FullingObject(GameObject):
     """
-    This is object
+    This is fulling object. When this object collide with player, player take damage
     """
-
-    def hit(self):
-        pass
-
     def __init__(self, group, HP, image_name, pos, speed=0,
                  screen_size=(600, 600)):
         super().__init__(group, HP, image_name, pos, speed=speed,
@@ -221,6 +243,9 @@ class FullingObject(GameObject):
         self.x_speed = randint(-1, 1) * self.speed * 0.25
 
     def die(self):
+        """
+        killing me with set damage to player
+        """
         player.set_damage(self.HP)
         super().die()
 
@@ -248,6 +273,9 @@ class FullingObject(GameObject):
 
 class Meteor(FullingObject):
     def kill(self):
+        """
+        Create some particles and kill object
+        """
         create_particles(self.rect.center, image_name='stone.png')
         player.plus_score(1)
         super().kill()
@@ -255,12 +283,16 @@ class Meteor(FullingObject):
 
 class Bomb(FullingObject):
     def kill(self):
+        """Create some particles and kill object"""
         game_controller.play_sound(BLAST_SOUND, 3)
         create_particles(self.rect.center, image_name='blast.png')
         super().kill()
 
 
 class GameController:
+    """
+    Class for control game and Game events
+    """
     def __init__(self, speed, hard_level, wave_delay=5,
                  meteor_prefab=FullingObject, FPS=5, delay=10):
         self.speed = speed
@@ -277,18 +309,29 @@ class GameController:
         self.boss = None
 
     def play_sound(self, sound, index=4):
+        """
+        Play sound on different channels. First 4 channels for hitting sound
+        :param sound: Sound for playing (pygame.mixer.Sound)
+        :param index: Chanel index
+        """
         if SOUND:
-            if index == -1:
+            if index == -1:  # -1 for shooting sound
                 CHANNELS[self.channel_index].play(sound)
                 self.channel_index = (self.channel_index + 1) % 4
             else:
                 CHANNELS[index].play(sound)
 
     def make_meteor(self):
+        """
+        Create Meteor in top screen
+        """
         pos = (randint(0, width - 64), randint(-128, 0))
         Meteor(enemy_group, 10, 'm', pos, 1, screen_size=size)
 
     def make_rockets(self):
+        """
+        Create some rockets in top screen
+        """
         old_positions = []
         for i in range(randint(1, int(1.5 * self.hard_level))):
             x = randint(0, width)
@@ -298,19 +341,6 @@ class GameController:
                                                                  int(1.5 * self.hard_level)),
                    (x, -64), speed=self.speed)
             old_positions.append(x)
-
-    def make_star(self):
-        Star(particles, (randint(0, width), 0), speed=self.speed)
-
-    def make_HP(self):
-        Diamond(particles, (randint(0, width), 0), speed=self.speed)
-
-    def make_money(self):
-        Coin(particles, (randint(0, width), 0), speed=self.speed)
-
-    def create_planet(self):
-        Planet(planets, image_name=f'earth{randint(1, 4)}',
-               pos=(randint(-64, width + 64), -128), count_satellite=randint(2, 5))
 
     def update(self):
         if not self.is_boss:
@@ -323,12 +353,13 @@ class GameController:
                 self.make_rockets()
                 if randint(0, 2) == 0:
                     if randint(0, 1) == 0:
-                        self.make_star()
+                        Star(particles, (randint(0, width), 0), speed=self.speed)
                     else:
-                        self.make_HP()
-                    self.make_money()
+                        Diamond(particles, (randint(0, width), 0), speed=self.speed)
+                    Coin(particles, (randint(0, width), 0), speed=self.speed)
             if self.timer % self.wave_delay_ten == 0:
-                self.create_planet()
+                Planet(planets, image_name=f'earth{randint(1, 4)}',
+                       pos=(randint(-64, width + 64), -128), count_satellite=randint(2, 5))
             if self.timer % self.boss_time == 0:
                 self.is_boss = True
                 self.boss = Boss()
@@ -338,6 +369,9 @@ class GameController:
 
 
 class Boss(GameObject):
+    """
+    This is Boss. He comming very rare and very strong.
+    """
     def __init__(self):
         super().__init__(boss_group, 300 * game_controller.hard_level, 'boss', (width // 2, -128),
                          speed=game_controller.speed,
@@ -364,36 +398,18 @@ class Boss(GameObject):
         super().update()
 
     def kill(self):
+        """
+        creating many particles and kill boss
+        """
         game_controller.play_sound(BLAST_SOUND)
-        create_particles(self.rect.center, image_name='blast.png')
-        create_particles(self.rect.center, image_name='blast.png')
-        create_particles(self.rect.center, image_name='blast.png')
-        create_particles(self.rect.center, image_name='blast.png')
+        for __ in range(5):
+            create_particles(self.rect.center, image_name='blast.png')
         super().kill()
 
     def hit(self):
+        """Drop bomb"""
         Bomb(enemy_group, 20, 'mine', (self.rect.center[0], self.rect.bottom + 32),
              speed=self.speed, screen_size=size)
-
-
-class Particle(pygame.sprite.Sprite):
-    def __init__(self, pos, dx, dy, image_name='star1.png'):
-        self.fire = [load_image(image_name, -1)]
-        for scale in (5, 10, 20):
-            self.fire.append(pygame.transform.scale(self.fire[0], (scale, scale)))
-        super().__init__(particles)
-        self.image = choice(self.fire)
-        self.rect = self.image.get_rect()
-        self.velocity = [dx, dy]
-        self.rect.x, self.rect.y = pos
-        self.gravity = GRAVITY
-
-    def update(self):
-        self.velocity[1] += self.gravity
-        self.rect.x += self.velocity[0]
-        self.rect.y += self.velocity[1]
-        if not self.rect.colliderect(screen_rect):
-            self.kill()
 
 
 class Player(GameObject):
@@ -422,16 +438,26 @@ class Player(GameObject):
         self.speed *= self.player_type[2]
 
     def plus_score(self, score):
+        """added score"""
         self.score += score
 
     def set_damage(self, damage):
+        """setting damage for player"""
         self.HP -= damage
 
     def update(self, *args):
         super().update(*args)
-        self.velocity = [0, 0]
+        self.velocity = [0, 0]  # Nullify player movement vector
+
+    def set_move(self, axis, way):
+        """Set movement Vector"""
+        if axis == 'v':
+            self.velocity[1] = way * self.speed
+        elif axis == 'h':
+            self.velocity[0] = way * self.speed
 
     def hit(self):
+        """Fire a shot"""
         if self.index == 0:
             Shell(shells, self.speed * 3, (self.rect.x + 21, self.rect.y - 40), True,
                   shell_name=f'shell{self.shell_name}')
@@ -447,6 +473,11 @@ class Player(GameObject):
                   shell_name=f'shell{self.shell_name}')
 
     def move_on_vector(self):
+        """
+        Moving object on vector.
+        Player can not move out screen on Y Axis and
+        moves on other side on X Axis if player out screen
+        """
         self.rect.x += self.velocity[0]
         new_y = self.rect.y + self.velocity[1]
         if 0 <= new_y and new_y + self.rect.height - self.speed <= self.screen_size[1]:
@@ -458,6 +489,7 @@ class Player(GameObject):
 
 
 class Star(pygame.sprite.Sprite):
+    """This is shooting star. On Collide with player add 100 score """
     def __init__(self, group, pos, speed=10, image_name='falling-star.png'):
         super().__init__(group)
         self.speed = speed
@@ -474,16 +506,19 @@ class Star(pygame.sprite.Sprite):
             self.kill()
 
     def die(self):
+        """Call when player take star. Add 100 score to player"""
         player.plus_score(100)
         create_particles(self.rect.center)
         self.kill()
 
 
 class Diamond(Star):
+    """HP-bonus for player"""
     def __init__(self, group, pos, speed=10):
         super().__init__(group, pos, speed=speed, image_name='diamond.png')
 
     def die(self):
+        """Add health for player and killing me"""
         player.HP += 10
         if player.HP > 100:
             player.HP = 100
@@ -491,15 +526,18 @@ class Diamond(Star):
 
 
 class Coin(Star):
+    """It is Coin - money"""
     def __init__(self, group, pos, speed=10):
         super().__init__(group, pos, speed=speed, image_name='coin.png')
 
     def die(self):
+        """Add coin for player"""
         player.count_coins += game_controller.hard_level
         self.kill()
 
 
 class Rocket(GameObject):
+    """This is enemy-rocket. Shooting anf killing"""
     sprites = ['spaceship', 'spaceship1']
 
     def __init__(self, shell_name, g, HP, pos, speed=0):
@@ -519,8 +557,6 @@ class Rocket(GameObject):
 
     def die(self):
         player.plus_score(20)
-        create_particles(self.rect.center, image_name='blast.png')
-        game_controller.play_sound(BLAST_SOUND, index=3)
         super().die()
 
     def kill(self):
@@ -570,6 +606,7 @@ class Satellite(Rocket):
 
 
 class Planet(pygame.sprite.Sprite):
+    """Background object with satellite"""
     def __init__(self, group,
                  image_name, pos=(-64, -128), count_satellite=1, speed=1):
         super().__init__(group)
@@ -600,6 +637,7 @@ class Planet(pygame.sprite.Sprite):
 
 
 class Shell(pygame.sprite.Sprite):
+    """It is laser bullet"""
     def __init__(self, group, speed, pos, from_player=True, shell_name=f'shell{randint(1, 4)}'):
         super().__init__(group)
         self.image = load_image(f'{shell_name}.png', -1)
@@ -635,6 +673,9 @@ class Shell(pygame.sprite.Sprite):
 
 
 def read_data():
+    """
+    reading data from files
+    """
     with open('best_score.txt', 'r') as f:
         score = eval(f.read())
     with open('data.txt', 'r', encoding='utf-8') as f:
@@ -643,6 +684,9 @@ def read_data():
 
 
 def save_data(score):
+    """
+    saving data to flies
+    """
     with open('best_score.txt', 'w', encoding='utf-8') as f:
         f.write(score.__str__())
     with open('data.txt', 'w', encoding='utf-8') as f:
@@ -650,6 +694,9 @@ def save_data(score):
 
 
 def drawing():
+    """
+    drawing UI elements in Game Scene
+    """
     font = pygame.font.Font(None, 20)
     screen.fill(pygame.Color(200, 45, 45), (10, 110 - player.HP, 10, player.HP))
     screen.fill(pygame.Color(200, 200, 200), (0, 120, 100, 90))
@@ -677,6 +724,9 @@ def drawing():
 
 
 def drawing_and_update():
+    """
+    update and drawing all groups
+    """
     bg.update()
     bg.draw(screen)
     planets.update()

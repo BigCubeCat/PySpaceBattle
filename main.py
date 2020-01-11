@@ -302,7 +302,7 @@ class GameController:
         self.timer = 0
         self.wave_delay = wave_delay
         self.wave = 0
-        self.wave_delay_ten = self.wave_delay * 10
+        self.wave_delay_ten = self.wave_delay * 3
         self.channel_index = 0
         self.boss_time = self.wave_delay_ten * 5 // self.hard_level
         self.is_boss = False
@@ -333,7 +333,7 @@ class GameController:
         Create some rockets in top screen
         """
         old_positions = []
-        for i in range(randint(1, int(1.5 * self.hard_level))):
+        for i in range(randint(1, int(1.2 * self.hard_level))):
             x = randint(0, width)
             while any([x <= i <= x + 64 for i in old_positions]):
                 x = randint(0, width)
@@ -346,7 +346,7 @@ class GameController:
         if not self.is_boss:
             self.timer += 1
             if self.timer % self.delay == 0:
-                for _ in range(randint(1, int(2.5 * self.hard_level))):
+                for _ in range(randint(1, self.hard_level)):
                     self.make_meteor()
             if self.timer % self.wave_delay == 0:
                 self.wave = (self.wave + 1) % self.wave_delay
@@ -359,7 +359,7 @@ class GameController:
                     Coin(particles, (randint(0, width), 0), speed=self.speed)
             if self.timer % self.wave_delay_ten == 0:
                 Planet(planets, image_name=f'earth{randint(1, 4)}',
-                       pos=(randint(-64, width + 64), -128), count_satellite=randint(2, 5))
+                       pos=(randint(-64, width + 64), -128))
             if self.timer % self.boss_time == 0:
                 self.is_boss = True
                 self.boss = Boss()
@@ -376,6 +376,7 @@ class Boss(GameObject):
         super().__init__(boss_group, 300 * game_controller.hard_level, 'boss', (width // 2, -128),
                          speed=game_controller.speed,
                          screen_size=size)
+        enemy_group = pygame.sprite.Group()  # delete all enemys
         self.left_border = (self.rect.width - self.HP / 10) // 2
         self.timer = 0
 
@@ -408,8 +409,8 @@ class Boss(GameObject):
 
     def hit(self):
         """Drop bomb"""
-        Bomb(enemy_group, 20, 'mine', (self.rect.center[0], self.rect.bottom + 32),
-             speed=self.speed, screen_size=size)
+        Bomb(enemy_group, 10, 'mine', (self.rect.center[0], self.rect.bottom + 32),
+             speed=1, screen_size=size)
 
 
 class Player(GameObject):
@@ -424,6 +425,7 @@ class Player(GameObject):
 
     def __init__(self, group, HP, pos, player_type=None, speed=0, screen_size=(600, 600), coins=0):
         self.score = 0
+        self.speed_shell = 5
         self.index = 0
         for i in range(5):
             if player_type[i] == 2:
@@ -459,17 +461,17 @@ class Player(GameObject):
     def hit(self):
         """Fire a shot"""
         if self.index == 0:
-            Shell(shells, self.speed * 3, (self.rect.x + 21, self.rect.y - 40), True,
+            Shell(shells, self.speed * self.speed_shell, (self.rect.x + 21, self.rect.y - 40), True,
                   shell_name=f'shell{self.shell_name}')
         elif 1 <= self.index <= 3:
-            Shell(shells, self.speed * 3, (self.rect.x + 2, self.rect.y - 40), True,
+            Shell(shells, self.speed * self.speed_shell, (self.rect.x + 2, self.rect.y - 40), True,
                   shell_name=f'shell{self.shell_name}')
-            Shell(shells, self.speed * 3, (self.rect.x + 38, self.rect.y - 40), True,
+            Shell(shells, self.speed * self.speed_shell, (self.rect.x + 38, self.rect.y - 40), True,
                   shell_name=f'shell{self.shell_name}')
         elif self.index == 4:
-            Shell(shells, self.speed * 3, (self.rect.x + 2, self.rect.y - 20), True,
+            Shell(shells, self.speed * self.speed_shell, (self.rect.x + 2, self.rect.y - 20), True,
                   shell_name=f'shell{self.shell_name}')
-            Shell(shells, self.speed * 3, (self.rect.x + 38, self.rect.y - 20), True,
+            Shell(shells, self.speed * self.speed_shell, (self.rect.x + 38, self.rect.y - 20), True,
                   shell_name=f'shell{self.shell_name}')
 
     def move_on_vector(self):
@@ -602,20 +604,20 @@ class Satellite(Rocket):
 
     def hit(self):
         pos = (self.rect.x + 21, self.rect.y + 64)
-        Shell(enemy_group, game_controller.speed * -3, pos, False, shell_name=self.shell_name)
+        Shell(enemy_group, game_controller.speed * -4, pos, False, shell_name=self.shell_name)
 
 
 class Planet(pygame.sprite.Sprite):
     """Background object with satellite"""
     def __init__(self, group,
-                 image_name, pos=(-64, -128), count_satellite=1, speed=1):
+                 image_name, pos=(-64, -128), speed=1):
         super().__init__(group)
         self.image_name = image_name
-        self.count_satellite, self.speed = count_satellite, speed
+        self.speed = speed
         self.image = load_image(f'{image_name}.png')
         self.rect = self.image.get_rect()
         self.rect.center = pos
-        for i in range(count_satellite):
+        for i in range(game_controller.hard_level // 2):
             self.make_satellite()
 
     def make_satellite(self):

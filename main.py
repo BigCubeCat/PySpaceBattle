@@ -2,7 +2,6 @@ from GameObjects import *
 from random import randint, choice
 import pygame
 import sys
-from time import sleep as time_pause
 
 pygame.init()
 
@@ -147,7 +146,8 @@ def start_screen():
 
 def shop():
     """Scene shop with player skins"""
-    screen.fill((0, 0, 30))
+    fon = pygame.transform.scale(load_image('bg4.png'), (1024, 4096))
+    screen.blit(fon, (0, 0))
     rects = [(0, i * 120, width, 120) for i in range(5)]
     sales = [0, 5, 10, 50, 70]
     skins = ['player.png', 'player.png', 'player2.png', 'player1.png', 'player3.png']
@@ -307,6 +307,7 @@ class GameController:
         self.boss_time = self.wave_delay_ten * 5 // self.hard_level
         self.is_boss = False
         self.boss = None
+        self.paused = False
 
     def play_sound(self, sound, index=4):
         """
@@ -343,29 +344,30 @@ class GameController:
             old_positions.append(x)
 
     def update(self):
-        if not self.is_boss:
-            self.timer += 1
-            if self.timer % self.delay == 0:
-                for _ in range(randint(1, self.hard_level)):
-                    self.make_meteor()
-            if self.timer % self.wave_delay == 0:
-                self.wave = (self.wave + 1) % self.wave_delay
-                self.make_rockets()
-                if randint(0, 2) == 0:
-                    if randint(0, 1) == 0:
-                        Star(particles, (randint(0, width), 0), speed=self.speed)
-                    else:
-                        Diamond(particles, (randint(0, width), 0), speed=self.speed)
-                    Coin(particles, (randint(0, width), 0), speed=self.speed)
-            if self.timer % self.wave_delay_ten == 0:
-                Planet(planets, image_name=f'earth{randint(1, 4)}',
-                       pos=(randint(-64, width + 64), -128))
-            if self.timer % self.boss_time == 0:
-                self.is_boss = True
-                self.boss = Boss()
-        else:
-            if len(boss_group) == 0:
-                self.is_boss = False
+        if not self.paused:
+            if not self.is_boss:
+                self.timer += 1
+                if self.timer % self.delay == 0:
+                    for _ in range(randint(1, self.hard_level)):
+                        self.make_meteor()
+                if self.timer % self.wave_delay == 0:
+                    self.wave = (self.wave + 1) % self.wave_delay
+                    self.make_rockets()
+                    if randint(0, 2) == 0:
+                        if randint(0, 1) == 0:
+                            Star(particles, (randint(0, width), 0), speed=self.speed)
+                        else:
+                            Diamond(particles, (randint(0, width), 0), speed=self.speed)
+                        Coin(particles, (randint(0, width), 0), speed=self.speed)
+                if self.timer % self.wave_delay_ten == 0:
+                    Planet(planets, image_name=f'earth{randint(1, 4)}',
+                           pos=(randint(-64, width + 64), -128))
+                if self.timer % self.boss_time == 0:
+                    self.is_boss = True
+                    self.boss = Boss()
+            else:
+                if len(boss_group) == 0:
+                    self.is_boss = False
 
 
 class Boss(GameObject):
@@ -373,6 +375,7 @@ class Boss(GameObject):
     This is Boss. He comming very rare and very strong.
     """
     def __init__(self):
+        global enemy_group
         super().__init__(boss_group, 300 * game_controller.hard_level, 'boss', (width // 2, -128),
                          speed=game_controller.speed,
                          screen_size=size)
@@ -770,25 +773,26 @@ while True:
     PLAYER_HIT = 30
     pygame.time.set_timer(PLAYER_HIT, 175)
     while running:
-        if player.HP <= 0:
-            if player.score > best_score[hard_level]:
-                best_score[hard_level] = player.score
-            data['coins'] = player.count_coins
-            save_data(best_score)
-            time_pause(0.3)
-            break
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_ESCAPE]:
-            break
         check_keys(player, keys)
         game_controller.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == PLAYER_HIT:
+            elif event.type == PLAYER_HIT and not game_controller.paused:
                 player.hit()
-        drawing_and_update()
-        drawing()
+            elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
+                game_controller.paused = not game_controller.paused
+                continue
+        if not game_controller.paused:
+            drawing_and_update()
+            drawing()
+        if player.HP <= 0:
+            if player.score > best_score[hard_level]:
+                best_score[hard_level] = player.score
+            data['coins'] = player.count_coins
+            save_data(best_score)
+            break
         clock.tick(game_controller.FPS)
         pygame.display.flip()
         player.plus_score(1)

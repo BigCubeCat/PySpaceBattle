@@ -179,6 +179,11 @@ def shop():
         for k in range(count_shell[i]):
             im = pygame.transform.scale(load_image(f'shell{i + 1}.png', -1), (22, 32))
             screen.blit(im, (200 + 30 * k, i * 120 + 30))
+    # show count money
+    font = pygame.font.Font(None, 20)
+    screen.fill(pygame.Color(145, 145, 145), (width - 60, 0, 60, 20))
+    string = font.render('$=' + str(data["coins"]), 1, pygame.Color(0, 0, 0))
+    screen.blit(string, (width - 60, 0, 60, 20))
     while True:
         group.draw(screen)
         keys = pygame.key.get_pressed()

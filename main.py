@@ -144,6 +144,12 @@ def start_screen():
         clock.tick(10)
 
 
+def two_to_one(data):
+    for j in range(5):
+        if data[j] == 2:
+            data[j] = 1
+
+
 def shop():
     """Scene shop with player skins"""
     fon = pygame.transform.scale(load_image('bg4.png'), (1024, 4096))
@@ -186,16 +192,12 @@ def shop():
                 for i in range(len(rects)):
                     if clicked(rects[i], pos):
                         if data[i] == 1:
-                            for j in range(5):
-                                if data[j] == 2:
-                                    data[j] = 1
+                            two_to_one(data)
                             data[i] = 2
                         elif data[i] == 0:
                             if data['coins'] >= sales[i]:
                                 data['coins'] -= sales[i]
-                                for j in range(5):
-                                    if data[j] == 2:
-                                        data[j] = 1
+                                two_to_one(data)
                                 data[i] = 2
                                 return
                         else:
